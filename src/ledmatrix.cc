@@ -2,13 +2,15 @@
  *	Copyright 2016, Maxime Journaux <journaux.maxime@gmail.com>
  * 	This work is free. You can redistribute it and/or modify it under the
  *	terms of the Do What The Fuck You Want To Public License, Version 2,
- *	as published by Sam Hocevar. 
+ *	as published by Sam Hocevar.
  *	See http://www.wtfpl.net for more details.
  */
+
 
 #include <v8.h>
 #include <node.h>
 
+#include <unistd.h>
 #include <stdlib.h>
 
 #include <led-matrix.h>
@@ -23,7 +25,7 @@ Nan::Persistent<v8::Function> LedMatrix::constructor;
 
 LedMatrix::LedMatrix(int rows, int chained_displays, int parallel_displays) {
 	assert(io.Init());
-	matrix = new RGBMatrix(&io, rows, chained_displays, parallel_displays);	
+	matrix = new RGBMatrix(&io, rows, chained_displays, parallel_displays);
 	matrix->set_luminance_correct(true);
 	image = NULL;
 }
@@ -36,9 +38,9 @@ LedMatrix::~LedMatrix() {
 void LedMatrix::Init(v8::Local<v8::Object> exports) {
 
 	Nan::HandleScope scope;
-	
+
 	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
-	
+
 	tpl->SetClassName(Nan::New("LedMatrix").ToLocalChecked());
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
@@ -50,7 +52,7 @@ void LedMatrix::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "setImageBuffer", SetImageBuffer);
 	Nan::SetPrototypeMethod(tpl, "draw", Draw);
 	Nan::SetPrototypeMethod(tpl, "scroll", Scroll);
-	
+
 	constructor.Reset(tpl->GetFunction());
 
 	exports->Set(Nan::New("LedMatrix").ToLocalChecked(), tpl->GetFunction());
@@ -117,10 +119,10 @@ void LedMatrix::Draw(int screenx, int screeny, int width, int height, int imgx, 
 			matrix->SetPixel(sx, sy, p.R(), p.G(), p.B());
 		}
 	}
-}	
+}
 
 void LedMatrix::New(const Nan::FunctionCallbackInfo<Value>& args) {
-	// throw an error if it's not a constructor 
+	// throw an error if it's not a constructor
 	if (!args.IsConstructCall()) {
 		Nan::ThrowError("LedMatrix::must be called as a constructor with 'new' keyword");
 	}
@@ -358,7 +360,7 @@ void LedMatrix::UV_Scroll(uv_work_t* work) {
 					usleep(uv->speed);
 				}
 				uv->matrix->Clear(uv->startx, uv->starty, uv->width, uv->height);
-				uv->matrix->Draw(uv->startx, uv->starty, uv->width, uv->height, 0, 0, false, true);	
+				uv->matrix->Draw(uv->startx, uv->starty, uv->width, uv->height, 0, 0, false, true);
 			}
 		} else {
 			for(int i = 0; i < uv->matrix->image->GetHeight(); i++) {
